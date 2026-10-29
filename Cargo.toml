@@ -1,0 +1,42 @@
+[package]
+name = "redis-rs"
+version = "0.1.0"
+edition = "2021"
+description = "A RESP2 Redis subset in Rust: sharded in-memory store, TTLs, AOF persistence"
+license = "MIT"
+publish = false
+default-run = "redis-rs"
+
+[lib]
+name = "redis_rs"
+path = "src/lib.rs"
+
+[[bin]]
+name = "redis-rs"
+path = "src/main.rs"
+
+[dependencies]
+bytes = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "sync", "time", "signal", "macros"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support"] }
+libc = "0.2"
+tempfile = "3"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "sync", "time", "signal", "macros", "process", "fs"] }
+
+[[bench]]
+name = "ops"
+harness = false
+
+# Holding a std::sync lock guard across an .await is a hard rule of this
+# project (see ARCHITECTURE.md). Setting it here applies the lint to every
+# target: lib, bin, tests and benches.
+[lints.clippy]
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

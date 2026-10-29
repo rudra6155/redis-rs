@@ -1,0 +1,6 @@
+target
+.git
+.github
+results
+*.aof
+*.corruption-report.txt

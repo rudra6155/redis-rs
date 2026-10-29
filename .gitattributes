@@ -1,0 +1,10 @@
+# Shell scripts, the Makefile and the Dockerfile must keep LF endings even when
+# cloned on Windows with core.autocrlf=true, or they fail inside Linux containers/CI.
+* text=auto
+*.sh text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
+*.rs text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.png binary
