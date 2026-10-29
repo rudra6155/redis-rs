@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-lint-test:
+    name: build, clippy (deny warnings), tests without Docker, smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+
+      - name: build (release)
+        run: cargo build --release --locked
+
+      # `clippy::await_holding_lock` is `deny` in Cargo.toml [lints.clippy] and in lib.rs; -D warnings
+      # additionally fails the build on every other clippy warning.
+      - name: clippy (deny warnings)
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: tests that do not need Docker
+        run: make test-nodocker
+
+      - name: smoke (PING / SET / GET + SIGINT, < 30 s)
+        run: timeout 30 bash scripts/smoke.sh target/release/redis-rs
+
+  oracle:
+    name: oracle tests against a real redis:7
+    runs-on: ubuntu-latest   # hosted runners ship Docker; no Docker-in-Docker needed
+    needs: build-lint-test
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: oracle diff (protocol_oracle + error_semantics)
+        run: cargo test --locked --test protocol_oracle --test error_semantics
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oracle-report
+          path: results/oracle_report.txt
