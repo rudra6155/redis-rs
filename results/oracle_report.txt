@@ -1,0 +1,218 @@
+redis-rs protocol oracle report
+oracle : redis_version=7.4.12 (docker run redis:7 (172.17.0.2:6379))
+subject: redis-rs 0.1.0 (RESP2, no AOF)
+run at : 2026-10-29T16:53:25Z
+method : same bytes sent to both servers; raw replies compared byte for byte.
+         Only `TTL` after EXPIRE/EX/PX is normalised (ttl within +-1 s of the expected value).
+         Replies shown with \r\n visible.
+
+   #        request                                                                  | oracle reply || redis-rs reply (shown only on FAIL)
+   1  PASS  PING                                                                     | +PONG\r\n
+   2  PASS  PING hello                                                               | $5\r\nhello\r\n
+   3  PASS  ping                                                                     | +PONG\r\n
+   4  PASS  ECHO world                                                               | $5\r\nworld\r\n
+   5  PASS  ECHO a\r\nb\x00c                                                         | $6\r\na\r\nb\x00c\r\n
+   6  PASS  ECHO ""                                                                  | $0\r\n\r\n
+   7  PASS  FOO                                                                      | -ERR unknown command 'FOO', with args beginning with: \r\n
+   8  PASS  FOO a b                                                                  | -ERR unknown command 'FOO', with args beginning with: 'a' 'b' \r\n
+   9  PASS  foo 1 2 3                                                                | -ERR unknown command 'foo', with args beginning with: '1' '2' '3' \r\n
+  10  PASS  FOO xxxxxxxxxxxxxxxx...(200B)                                            | -ERR unknown command 'FOO', with args beginning with: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' \r\n
+  11  PASS  FOO yyyyyyyyyyyyyyyy...(100B) yyyyyyyyyyyyyyyy...(100B)                  | -ERR unknown command 'FOO', with args beginning with: 'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy' 'yyyyyyyyyyyyyyyyyyyyyyyyy' \r\n
+  12  PASS  xxxxxxxxxxxxxxxx...(200B)                                                | -ERR unknown command 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', with args beginning with: \r\n
+  13  PASS  GET                                                                      | -ERR wrong number of arguments for 'get' command\r\n
+  14  PASS  GET a b                                                                  | -ERR wrong number of arguments for 'get' command\r\n
+  15  PASS  SET                                                                      | -ERR wrong number of arguments for 'set' command\r\n
+  16  PASS  SET k                                                                    | -ERR wrong number of arguments for 'set' command\r\n
+  17  PASS  DEL                                                                      | -ERR wrong number of arguments for 'del' command\r\n
+  18  PASS  EXISTS                                                                   | -ERR wrong number of arguments for 'exists' command\r\n
+  19  PASS  TTL                                                                      | -ERR wrong number of arguments for 'ttl' command\r\n
+  20  PASS  TTL a b                                                                  | -ERR wrong number of arguments for 'ttl' command\r\n
+  21  PASS  EXPIRE k                                                                 | -ERR wrong number of arguments for 'expire' command\r\n
+  22  PASS  EXPIRE                                                                   | -ERR wrong number of arguments for 'expire' command\r\n
+  23  PASS  INCR                                                                     | -ERR wrong number of arguments for 'incr' command\r\n
+  24  PASS  INCR a b                                                                 | -ERR wrong number of arguments for 'incr' command\r\n
+  25  PASS  HSET                                                                     | -ERR wrong number of arguments for 'hset' command\r\n
+  26  PASS  HSET h f                                                                 | -ERR wrong number of arguments for 'hset' command\r\n
+  27  PASS  HSET h f v g                                                             | -ERR wrong number of arguments for 'hset' command\r\n
+  28  PASS  HGET h                                                                   | -ERR wrong number of arguments for 'hget' command\r\n
+  29  PASS  HDEL h                                                                   | -ERR wrong number of arguments for 'hdel' command\r\n
+  30  PASS  HLEN                                                                     | -ERR wrong number of arguments for 'hlen' command\r\n
+  31  PASS  HGETALL                                                                  | -ERR wrong number of arguments for 'hgetall' command\r\n
+  32  PASS  PING a b                                                                 | -ERR wrong number of arguments for 'ping' command\r\n
+  33  PASS  ECHO                                                                     | -ERR wrong number of arguments for 'echo' command\r\n
+  34  PASS  ECHO a b                                                                 | -ERR wrong number of arguments for 'echo' command\r\n
+  35  PASS  SET k v                                                                  | +OK\r\n
+  36  PASS  GET k                                                                    | $1\r\nv\r\n
+  37  PASS  GET missing                                                              | $-1\r\n
+  38  PASS  SET k v2                                                                 | +OK\r\n
+  39  PASS  GET k                                                                    | $2\r\nv2\r\n
+  40  PASS  set lower case                                                           | +OK\r\n
+  41  PASS  gEt lower                                                                | $4\r\ncase\r\n
+  42  PASS  SET bin \x00\x01\r\n\xff                                                 | +OK\r\n
+  43  PASS  GET bin                                                                  | $5\r\n\x00\x01\r\n\xff\r\n
+  44  PASS  SET empty ""                                                             | +OK\r\n
+  45  PASS  GET empty                                                                | $0\r\n\r\n
+  46  PASS  SET e1 v EX 100                                                          | +OK\r\n
+  47  PASS  TTL e1                                                                   | :~100
+  48  PASS  SET e2 v PX 100500                                                       | +OK\r\n
+  49  PASS  TTL e2                                                                   | :~100
+  50  PASS  SET e3 v ex 100                                                          | +OK\r\n
+  51  PASS  TTL e3                                                                   | :~100
+  52  PASS  SET e4 v EX 10 EX 20                                                     | +OK\r\n
+  53  PASS  TTL e4                                                                   | :~20
+  54  PASS  SET round v PX 1900                                                      | +OK\r\n
+  55  PASS  TTL round                                                                | :2\r\n
+  56  PASS  SET k v EX 0                                                             | -ERR invalid expire time in 'set' command\r\n
+  57  PASS  SET k v EX -1                                                            | -ERR invalid expire time in 'set' command\r\n
+  58  PASS  SET k v PX 0                                                             | -ERR invalid expire time in 'set' command\r\n
+  59  PASS  SET k v EX abc                                                           | -ERR value is not an integer or out of range\r\n
+  60  PASS  SET k v EX 1.5                                                           | -ERR value is not an integer or out of range\r\n
+  61  PASS  SET k v EX +5                                                            | -ERR value is not an integer or out of range\r\n
+  62  PASS  SET k v EX ""                                                            | -ERR value is not an integer or out of range\r\n
+  63  PASS  SET k v EX 9223372036854775807                                           | -ERR invalid expire time in 'set' command\r\n
+  64  PASS  SET k v PX 9223372036854775807                                           | -ERR invalid expire time in 'set' command\r\n
+  65  PASS  SET k v EX 10 PX 100                                                     | -ERR syntax error\r\n
+  66  PASS  SET k v PX 100 EX 10                                                     | -ERR syntax error\r\n
+  67  PASS  SET k v EX                                                               | -ERR syntax error\r\n
+  68  PASS  SET k v PX                                                               | -ERR syntax error\r\n
+  69  PASS  SET k v FOO                                                              | -ERR syntax error\r\n
+  70  PASS  SET k v EX abc FOO                                                       | -ERR syntax error\r\n
+  71  PASS  SET t v EX 100                                                           | +OK\r\n
+  72  PASS  SET t v2                                                                 | +OK\r\n
+  73  PASS  TTL t                                                                    | :-1\r\n
+  74  PASS  TTL nosuchkey                                                            | :-2\r\n
+  75  PASS  SET nottl v                                                              | +OK\r\n
+  76  PASS  TTL nottl                                                                | :-1\r\n
+  77  PASS  EXPIRE nottl 100                                                         | :1\r\n
+  78  PASS  TTL nottl                                                                | :~100
+  79  PASS  EXPIRE nottl 200                                                         | :1\r\n
+  80  PASS  TTL nottl                                                                | :~200
+  81  PASS  EXPIRE missing 10                                                        | :0\r\n
+  82  PASS  EXPIRE nottl abc                                                         | -ERR value is not an integer or out of range\r\n
+  83  PASS  EXPIRE missing abc                                                       | -ERR value is not an integer or out of range\r\n
+  84  PASS  EXPIRE nottl 9223372036854775807                                         | -ERR invalid expire time in 'expire' command\r\n
+  85  PASS  EXPIRE nottl -9223372036854775808                                        | -ERR invalid expire time in 'expire' command\r\n
+  86  PASS  EXPIRE nottl 0                                                           | :1\r\n
+  87  PASS  EXISTS nottl                                                             | :0\r\n
+  88  PASS  SET neg v                                                                | +OK\r\n
+  89  PASS  EXPIRE neg -5                                                            | :1\r\n
+  90  PASS  GET neg                                                                  | $-1\r\n
+  91  PASS  SET p v PX 5000                                                          | +OK\r\n
+  92  PASS  EXPIRE p 100                                                             | :1\r\n
+  93  PASS  TTL p                                                                    | :~100
+  94  PASS  SET d v                                                                  | +OK\r\n
+  95  PASS  EXISTS d                                                                 | :1\r\n
+  96  PASS  DEL d                                                                    | :1\r\n
+  97  PASS  DEL d                                                                    | :0\r\n
+  98  PASS  EXISTS d                                                                 | :0\r\n
+  99  PASS  EXISTS never                                                             | :0\r\n
+ 100  PASS  INCR c                                                                   | :1\r\n
+ 101  PASS  INCR c                                                                   | :2\r\n
+ 102  PASS  GET c                                                                    | $1\r\n2\r\n
+ 103  PASS  SET s abc                                                                | +OK\r\n
+ 104  PASS  INCR s                                                                   | -ERR value is not an integer or out of range\r\n
+ 105  PASS  SET big 9223372036854775807                                              | +OK\r\n
+ 106  PASS  INCR big                                                                 | -ERR increment or decrement would overflow\r\n
+ 107  PASS  SET b2 9223372036854775806                                               | +OK\r\n
+ 108  PASS  INCR b2                                                                  | :9223372036854775807\r\n
+ 109  PASS  INCR b2                                                                  | -ERR increment or decrement would overflow\r\n
+ 110  PASS  SET neg5 -5                                                              | +OK\r\n
+ 111  PASS  INCR neg5                                                                | :-4\r\n
+ 112  PASS  SET z 007                                                                | +OK\r\n
+ 113  PASS  INCR z                                                                   | -ERR value is not an integer or out of range\r\n
+ 114  PASS  SET plus +5                                                              | +OK\r\n
+ 115  PASS  INCR plus                                                                | -ERR value is not an integer or out of range\r\n
+ 116  PASS  SET sp  5                                                                | +OK\r\n
+ 117  PASS  INCR sp                                                                  | -ERR value is not an integer or out of range\r\n
+ 118  PASS  SET n0 -0                                                                | +OK\r\n
+ 119  PASS  INCR n0                                                                  | -ERR value is not an integer or out of range\r\n
+ 120  PASS  SET fl 1.5                                                               | +OK\r\n
+ 121  PASS  INCR fl                                                                  | -ERR value is not an integer or out of range\r\n
+ 122  PASS  SET emp ""                                                               | +OK\r\n
+ 123  PASS  INCR emp                                                                 | -ERR value is not an integer or out of range\r\n
+ 124  PASS  SET huge 99999999999999999999                                            | +OK\r\n
+ 125  PASS  INCR huge                                                                | -ERR value is not an integer or out of range\r\n
+ 126  PASS  SET ct 5 EX 100                                                          | +OK\r\n
+ 127  PASS  INCR ct                                                                  | :6\r\n
+ 128  PASS  TTL ct                                                                   | :~100
+ 129  PASS  HSET h f v                                                               | :1\r\n
+ 130  PASS  HSET h f v                                                               | :0\r\n
+ 131  PASS  HSET h f v2 g w                                                          | :1\r\n
+ 132  PASS  HSET h a 1 a 2                                                           | :1\r\n
+ 133  PASS  HGET h f                                                                 | $2\r\nv2\r\n
+ 134  PASS  HGET h a                                                                 | $1\r\n2\r\n
+ 135  PASS  HGET h nope                                                              | $-1\r\n
+ 136  PASS  HGET nokey f                                                             | $-1\r\n
+ 137  PASS  HLEN h                                                                   | :3\r\n
+ 138  PASS  HLEN nokey                                                               | :0\r\n
+ 139  PASS  HGETALL h                                                                | *6\r\n$1\r\nf\r\n$2\r\nv2\r\n$1\r\ng\r\n$1\r\nw\r\n$1\r\na\r\n$1\r\n2\r\n
+ 140  PASS  HGETALL nokey                                                            | *0\r\n
+ 141  PASS  HDEL h f                                                                 | :1\r\n
+ 142  PASS  HDEL h nope                                                              | :0\r\n
+ 143  PASS  HGETALL h                                                                | *4\r\n$1\r\ng\r\n$1\r\nw\r\n$1\r\na\r\n$1\r\n2\r\n
+ 144  PASS  HDEL h g a zzz                                                           | :2\r\n
+ 145  PASS  EXISTS h                                                                 | :0\r\n
+ 146  PASS  HLEN h                                                                   | :0\r\n
+ 147  PASS  HDEL h f                                                                 | :0\r\n
+ 148  PASS  HDEL nokey f                                                             | :0\r\n
+ 149  PASS  HSET ht a 1                                                              | :1\r\n
+ 150  PASS  EXPIRE ht 100                                                            | :1\r\n
+ 151  PASS  HSET ht b 2                                                              | :1\r\n
+ 152  PASS  TTL ht                                                                   | :~100
+ 153  PASS  HDEL ht a b                                                              | :2\r\n
+ 154  PASS  TTL ht                                                                   | :-2\r\n
+ 155  PASS  HSET ht2 a 1                                                             | :1\r\n
+ 156  PASS  EXPIRE ht2 100                                                           | :1\r\n
+ 157  PASS  SET ht2 x                                                                | +OK\r\n
+ 158  PASS  TTL ht2                                                                  | :-1\r\n
+ 159  PASS  HSET hd a 1                                                              | :1\r\n
+ 160  PASS  DEL hd                                                                   | :1\r\n
+ 161  PASS  DEL hd                                                                   | :0\r\n
+ 162  PASS  SET str x                                                                | +OK\r\n
+ 163  PASS  HSET str f v                                                             | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 164  PASS  HGET str f                                                               | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 165  PASS  HLEN str                                                                 | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 166  PASS  HGETALL str                                                              | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 167  PASS  HDEL str f                                                               | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 168  PASS  HSET hh f v                                                              | :1\r\n
+ 169  PASS  GET hh                                                                   | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 170  PASS  INCR hh                                                                  | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 171  PASS  SET hh now a string                                                      | +OK\r\n
+ 172  PASS  HGET hh f                                                                | -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
+ 173  PASS  GET hh                                                                   | $12\r\nnow a string\r\n
+ 174  PASS  SET px v PX 300                                                          | +OK\r\n
+ 175  PASS  EXISTS px                                                                | :1\r\n
+ 176  PASS  SET px2 5 PX 30                                                          | +OK\r\n
+ 177  PASS  SET px3 v PX 30                                                          | +OK\r\n
+ 178  PASS  GET px                                                                   | $-1\r\n
+ 179  PASS  EXISTS px                                                                | :0\r\n
+ 180  PASS  TTL px                                                                   | :-2\r\n
+ 181  PASS  INCR px2                                                                 | :1\r\n
+ 182  PASS  TTL px2                                                                  | :-1\r\n
+ 183  PASS  DEL px3                                                                  | :0\r\n
+ 184  PASS  HSET px4 f v                                                             | :1\r\n
+ 185  PASS  EXPIRE px4 0                                                             | :1\r\n
+ 186  PASS  HGET px4 f                                                               | $-1\r\n
+ 187  PASS  [wire] pipelined PING/ECHO/GET in one segment                            | +PONG\r\n$2\r\nhi\r\n$-1\r\n
+ 188  PASS  [wire] bulk string containing CRLF                                       | +OK\r\n$6\r\na\r\nb\r\n\r\n
+ 189  PASS  [wire] *0 and *-1 are skipped                                            | +PONG\r\n
+ 190  PASS  [wire] unknown command inside a pipeline                                 | -ERR unknown command 'FOO', with args beginning with: 'x' \r\n+PONG\r\n
+ 191  PASS  [wire] command split mid-header                                          | +PONG\r\n
+ 192  PASS  [wire] command split between CR and LF                                   | +PONG\r\n
+ 193  PASS  [wire] SET split into three segments                                     | +OK\r\n
+ 194  PASS  [wire] protocol error: *abc                                              | -ERR Protocol error: invalid multibulk length\r\n
+ 195  PASS  [wire] protocol error: negative bulk length                              | -ERR Protocol error: invalid bulk length\r\n
+ 196  PASS  [wire] protocol error: non-numeric bulk length                           | -ERR Protocol error: invalid bulk length\r\n
+ 197  PASS  [wire] protocol error: bulk length over 512MB                            | -ERR Protocol error: invalid bulk length\r\n
+ 198  PASS  [wire] protocol error: element is not a bulk string                      | -ERR Protocol error: expected '$', got '+'\r\n
+ 199  PASS  [wire] protocol error: nested array in a request                         | -ERR Protocol error: expected '$', got '*'\r\n
+
+SUMMARY: 199 rows (186 command rows + 13 wire rows): 199 PASS, 0 FAIL
+
+Deliberately NOT diffed (documented divergences, SPEC.md section 8):
+  D1 inline commands (`PING\r\n`) are rejected; Redis executes them
+  D2 requests with more than 1048576 arguments are rejected; Redis 7.4 accepts up to INT_MAX
+  D3 a bulk payload not followed by CRLF is a protocol error; Redis skips 2 bytes blindly
+  D4 SET options NX XX GET KEEPTTL EXAT PXAT answer `ERR syntax error`
+  D5 DEL/EXISTS accept exactly one key
+  D6 EXPIRE has no NX/XX/GT/LT options

@@ -1,0 +1,12 @@
+{
+  "cpu_model": "AMD Ryzen 7 7435HS",
+  "cores": 16,
+  "ram_gb": 11.5,
+  "os": "Docker Desktop (Linux VM, kernel 6.18.33.2-microsoft-standard-WSL2); script run from MINGW64_NT-10.0-26200",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "rust_version": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "cargo_version": "cargo 1.99.1 (5f94df478 2026-08-27)",
+  "redis_version": "7.4.12",
+  "redis_image_tag": "redis:7 (redis@sha256:b6b6e3dc0c0952737748e55d5d885272840c7e42ba41ab1d5489f693419882f5)",
+  "run_datetime": "2026-10-29T16:16:25Z"
+}

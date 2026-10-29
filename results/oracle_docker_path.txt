@@ -1,0 +1,15 @@
+Oracle tests via the 'docker run redis:7' path (ORACLE_ADDR unset)
+date: 2026-10-29T16:53:22Z   helper image: rust:1.99.1-slim-bookworm + docker CLI, --network host, docker socket mounted
+
+$ cargo test --locked --test protocol_oracle --test error_semantics     (ORACLE_ADDR unset)
+test documented_divergences_behave_as_documented ... ok
+test error_strings_are_exact ... ok
+test oracle_error_strings_match_redis7 ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
+test oracle_script_and_wire_cases_match_redis7 ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.90s
+cargo exit status: 0
+
+running containers before the run: 19, after: 19  (nothing leaked)
+oracle : redis_version=7.4.12 (docker run redis:7 (172.17.0.2:6379))
+SUMMARY: 199 rows (186 command rows + 13 wire rows): 199 PASS, 0 FAIL

@@ -1,0 +1,30 @@
+redis-rs criterion microbenchmarks (benches/ops.rs): NO I/O, no network.
+Isolates parser / store / command-path cost from network cost.
+run at : 2026-10-29T16:05:30Z
+cpu    : AMD Ryzen 7 7435HS
+rustc  : rustc 1.99.1 (58cf8f9c3 2026-10-13)
+command: cargo bench --bench ops -- --noplot   (release profile; time = [low estimate high])
+
+resp_parser/parse_request SET (3 args)
+                        time:   [49.962 ns 52.419 ns 54.894 ns]
+                        thrpt:  [1.2385 GiB/s 1.2970 GiB/s 1.3608 GiB/s]
+resp_parser/parse_request GET (2 args)
+                        time:   [31.720 ns 32.208 ns 32.847 ns]
+                        thrpt:  [1.0207 GiB/s 1.0410 GiB/s 1.0570 GiB/s]
+resp_parser/parse_request HSET (6 args)
+                        time:   [57.226 ns 58.077 ns 59.208 ns]
+                        thrpt:  [1.3370 GiB/s 1.3631 GiB/s 1.3833 GiB/s]
+resp_parser/parse_request 16-command SET pipeline
+                        time:   [657.12 ns 667.95 ns 680.16 ns]
+                        thrpt:  [1.5993 GiB/s 1.6285 GiB/s 1.6554 GiB/s]
+resp_parser/Frame::parse bulk reply (general decoder)
+                        time:   [25.376 ns 25.936 ns 26.603 ns]
+                        thrpt:  [1.2953 GiB/s 1.3286 GiB/s 1.3579 GiB/s]
+store_and_command_path/Shard::get hit
+                        time:   [57.249 ns 58.214 ns 59.424 ns]
+store_and_command_path/Shard::set overwrite
+                        time:   [116.88 ns 119.52 ns 122.47 ns]
+store_and_command_path/execute GET (parse excluded, no I/O)
+                        time:   [93.472 ns 94.534 ns 95.674 ns]
+store_and_command_path/execute SET (parse excluded, no I/O)
+                        time:   [159.61 ns 163.15 ns 167.10 ns]

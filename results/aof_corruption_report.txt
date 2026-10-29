@@ -1,0 +1,8 @@
+{
+  "action": "truncated_tail",
+  "aof_path": "/tmp/.tmpJMfsZa/appendonly.aof",
+  "bytes_dropped": 36,
+  "last_good_offset": 333,
+  "offending_hex": "2a 33 0d 0a 24 33 0d 0a 53 45 54 0d 0a 24 35 0d 0a 6b 65 79 3a 39 0d 0a 24 37 0d 0a 76 61 6c 75",
+  "reason": "file ends in the middle of a command (torn write)"
+}

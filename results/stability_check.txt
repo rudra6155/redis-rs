@@ -1,0 +1,9 @@
+redis-rs stability check
+run at : 2026-10-29T16:47:16Z   cores: 16   AMD Ryzen 7 7435HS
+what   : the full 'cargo test' (all test binaries, oracle included), 10 plain runs then 5 runs
+         while 12 busy-loop processes compete for the CPUs. Format per run: passed/failed
+
+plain : 69/0 69/0 69/0 69/0 69/0 69/0 69/0 69/0 69/0 69/0 
+loaded: 69/0 69/0 69/0 69/0 69/0 
+
+SUMMARY: 15 full runs, 0 failed run(s)

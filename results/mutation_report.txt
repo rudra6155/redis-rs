@@ -1,0 +1,27 @@
+redis-rs mutation check
+run at: 2026-10-29T16:48:58Z   rustc: rustc 1.99.1 (58cf8f9c3 2026-10-13)
+each row: one injected bug -> the tests that must fail
+
+CAUGHT   ttl-truncates-instead-of-rounds    by: test ttl_reports_minus2_minus1_and_remaining_seconds ... FAILED;error: test failed, to rerun pass `--test expiry`;
+CAUGHT   arity-error-name-not-lowercase     by: test error_strings_are_exact ... FAILED;error: test failed, to rerun pass `--test error_semantics`;
+CAUGHT   get-on-hash-returns-nil-not-wrongtype by: test error_strings_are_exact ... FAILED;error: test failed, to rerun pass `--test error_semantics`;
+CAUGHT   lazy-expiry-not-journaled          by: test replay_matches_runtime_when_an_expired_key_is_reused_lazy_path ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   replay-treats-deadline-as-relative by: test px_key_does_not_resurrect_after_downtime ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   sweeper-does-nothing               by: test sweeper_removes_an_untouched_key_after_px_50_and_150ms ... FAILED;error: test failed, to rerun pass `--test expiry`;
+CAUGHT   everysec-fsyncs-inline             by: test fsync_policy_is_observable_everysec_syncs_in_the_background_not_inline ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   always-never-fsyncs                by: test fsync_policy_is_observable_always_syncs_before_the_barrier_releases ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   torn-tail-not-truncated            by: test a_torn_final_command_is_truncated_logged_and_serving_continues ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   bulk-terminator-not-checked        by: test bulk_terminator_must_be_crlf ... FAILED;error: test failed, to rerun pass `--test resp_unit`;
+CAUGHT   hgetall-loses-insertion-order      by: test store_agrees_with_a_reference_model_under_random_operations ... FAILED;error: test failed, to rerun pass `--test expiry`;
+CAUGHT   shutdown-never-tells-connections-to-stop by: test shutdown_closes_idle_connections_promptly ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   signals-installed-after-ready-line by: test sigint_immediately_after_ready_still_exits_zero ... FAILED;error: test failed, to rerun pass `--test persistence_crash`;
+CAUGHT   incr-uses-two-lock-scopes          by: test fifty_tasks_times_1000_incr_on_one_key_is_exactly_50000 ... FAILED;error: test failed, to rerun pass `--test concurrency`;
+CAUGHT   clippy::await_holding_lock denies a guard held across .await
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#await_holding_lock
+note: the lint level is defined here
+  --> src/lib.rs:20:9
+   |
+20 | #![deny(clippy::await_holding_lock)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SUMMARY: 15 caught, 0 survived/errored

@@ -1,0 +1,5 @@
+server,version,op,n_ops,clients,ops_per_sec,p50_ms,p99_ms,host_cpu,host_ram_gb,os
+redis,7.4.12,SET,100000,50,49925.11,0.847,1.791,"AMD Ryzen 7 7435HS",11.5,"Docker Desktop (Linux VM, kernel 6.18.33.2-microsoft-standard-WSL2); script run from MINGW64_NT-10.0-26200"
+redis,7.4.12,GET,100000,50,57045.07,0.823,1.711,"AMD Ryzen 7 7435HS",11.5,"Docker Desktop (Linux VM, kernel 6.18.33.2-microsoft-standard-WSL2); script run from MINGW64_NT-10.0-26200"
+redis-rs,0.1.0,SET,100000,50,132978.73,0.159,0.615,"AMD Ryzen 7 7435HS",11.5,"Docker Desktop (Linux VM, kernel 6.18.33.2-microsoft-standard-WSL2); script run from MINGW64_NT-10.0-26200"
+redis-rs,0.1.0,GET,100000,50,133155.80,0.159,0.551,"AMD Ryzen 7 7435HS",11.5,"Docker Desktop (Linux VM, kernel 6.18.33.2-microsoft-standard-WSL2); script run from MINGW64_NT-10.0-26200"

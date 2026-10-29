@@ -1,0 +1,92 @@
+# AOF written by a real redis-server 7.4.12 (--appendonly yes --appendfsync always)
+# commands sent through redis-cli, in order:
+#   SET k v
+#   SET e v EX 100
+#   SET p v PX 5000
+#   EXPIRE k 100
+#   INCR n
+#   HSET h f v g w
+#   HDEL h f
+#   DEL p
+#   EXPIRE e 0
+#   GET k
+# file: appendonlydir/*.incr.aof, shown with cat -A: ^M = CR, $ = LF (GET is not journaled)
+# note: EX/PX were rewritten to absolute SET ... PXAT <unix-ms>, EXPIRE to PEXPIREAT, and an
+#       EXPIRE with a non-positive time to DEL. redis-rs journals exactly these forms.
+
+*2^M$
+$6^M$
+SELECT^M$
+$1^M$
+0^M$
+*3^M$
+$3^M$
+SET^M$
+$1^M$
+k^M$
+$1^M$
+v^M$
+*5^M$
+$3^M$
+SET^M$
+$1^M$
+e^M$
+$1^M$
+v^M$
+$4^M$
+PXAT^M$
+$13^M$
+1793290791261^M$
+*5^M$
+$3^M$
+SET^M$
+$1^M$
+p^M$
+$1^M$
+v^M$
+$4^M$
+PXAT^M$
+$13^M$
+1793290696555^M$
+*3^M$
+$9^M$
+PEXPIREAT^M$
+$1^M$
+k^M$
+$13^M$
+1793290791886^M$
+*2^M$
+$4^M$
+INCR^M$
+$1^M$
+n^M$
+*6^M$
+$4^M$
+HSET^M$
+$1^M$
+h^M$
+$1^M$
+f^M$
+$1^M$
+v^M$
+$1^M$
+g^M$
+$1^M$
+w^M$
+*3^M$
+$4^M$
+HDEL^M$
+$1^M$
+h^M$
+$1^M$
+f^M$
+*2^M$
+$3^M$
+DEL^M$
+$1^M$
+p^M$
+*2^M$
+$3^M$
+DEL^M$
+$1^M$
+e^M$

@@ -1,0 +1,29 @@
+Fresh-clone acceptance transcript (simulated clone: tree copied without target/, cold CARGO_TARGET_DIR)
+date: 2026-10-29T16:44:19Z   rustc: rustc 1.99.1 (58cf8f9c3 2026-10-13)   cpu: AMD Ryzen 7 7435HS
+oracle: ORACLE_ADDR=redis-oracle-dev:6379 (a sibling redis:7 container; no docker CLI inside this container)
+crates.io download cache: warm (dependencies were already downloaded on this machine)
+
+$ make install
+   Compiling redis-rs v0.1.0 (/tmp/tmp.SFFk5acwzl)
+    Finished `release` profile [optimized] target(s) in 14.41s
+wall: 14.4 s
+
+$ make test      # includes protocol_oracle + error_semantics oracle test
+     Running unittests src/lib.rs (cold-target/debug/deps/redis_rs-ff3a9b538e25e3f0)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running unittests src/main.rs (cold-target/debug/deps/redis_rs-780934e8f3183c1a)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/concurrency.rs (cold-target/debug/deps/concurrency-e29e9174fbcd72c7)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.50s
+     Running tests/error_semantics.rs (cold-target/debug/deps/error_semantics-f0f70ffe6990aed8)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/expiry.rs (cold-target/debug/deps/expiry-f01f5fc1bd8dc126)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+     Running tests/persistence_crash.rs (cold-target/debug/deps/persistence_crash-e8fea7fa49ca9f74)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.04s
+     Running tests/protocol_oracle.rs (cold-target/debug/deps/protocol_oracle-82128beb5a52db2b)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+     Running tests/resp_unit.rs (cold-target/debug/deps/resp_unit-941deecd492003a0)
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+wall: 22.6 s   (budget: 180 s)

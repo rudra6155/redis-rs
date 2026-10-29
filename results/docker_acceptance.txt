@@ -1,0 +1,30 @@
+Docker acceptance transcript
+date: 2026-10-29T16:45:12Z   docker: 29.6.2   run from: MINGW64_NT-10.0-26200
+
+$ make docker      (docker build -t redis-rs:latest .)
+#21 naming to docker.io/library/redis-rs:latest done
+#21 unpacking to docker.io/library/redis-rs:latest 0.0s done
+#21 DONE 0.2s
+image redis-rs:latest  size 38.8MB  base: gcr.io/distroless/cc-debian12:nonroot (no shell, uid 65532)
+
+$ make docker-smoke   (scripts/docker_smoke.sh: official redis-cli from redis:7 against the container)
+docker image redis-rs:latest serves PING/SET/GET (checked with redis-cli from redis:7)
+
+$ make docker-test    (GNU make is not installed on this host: run inside a docker:cli container)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/concurrency.rs (target/debug/deps/concurrency-e29e9174fbcd72c7)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.50s
+     Running tests/error_semantics.rs (target/debug/deps/error_semantics-f0f70ffe6990aed8)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/expiry.rs (target/debug/deps/expiry-f01f5fc1bd8dc126)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+     Running tests/persistence_crash.rs (target/debug/deps/persistence_crash-e8fea7fa49ca9f74)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.04s
+     Running tests/protocol_oracle.rs (target/debug/deps/protocol_oracle-82128beb5a52db2b)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s
+     Running tests/resp_unit.rs (target/debug/deps/resp_unit-941deecd492003a0)
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+make docker-test exit status: 0
+leftover oracle containers/networks afterwards: 0 containers, 0 networks

@@ -1,0 +1,50 @@
+Verification of ARCHITECTURE.md section 6 - "How to add a new command in exactly 5 steps"
+==========================================================================================
+date    : 2026-10-29 (transcript of the actual experiment, not a re-enactment)
+command : TYPE   (listed as out of scope before; trivial, but exercises every file the recipe names)
+oracle  : redis:7 = 7.4.12
+
+Method
+  1. back up src/store.rs, src/command.rs, tests/protocol_oracle.rs, SPEC.md; record sha256
+  2. follow steps 1-4 of the recipe exactly as written, cold, using only what the recipe says
+  3. run `cargo test --test protocol_oracle` against the real redis:7
+  4. revert by restoring the backups; verify sha256 identical; re-run the oracle on the reverted tree
+
+sha256 before (and after the revert - identical, `diff` printed nothing):
+  9e999e464ee5ecdc784159553d70a0f39a6128ffd6a82f05c909639cf92d2d9d  src/store.rs
+  0655e916ecd255fb8e654b31813693d06acd5de8ccdba3ab8fbe96b145097dd9  src/command.rs
+  146aa4e9f0067126f5516f8d576f1d22613382470576f22960dc5f6a8a54f20e  tests/protocol_oracle.rs
+  (SPEC.md: also identical; it was backed up but not edited, see step 5 below)
+
+Edits applied (4 edits, 3 files)
+
+  step 1  src/store.rs        +  /// `TYPE`: "string", "hash", or None for a missing key.
+                              +  pub fn type_name(&mut self, key: &[u8], now: u64) -> Option<&'static str> {
+                              +      self.live(key, now).map(|e| match e.value {
+                              +          Value::Str(_) => "string",
+                              +          Value::Hash(_) => "hash",
+                              +      })
+                              +  }
+  step 2  src/command.rs      +  fn cmd_type(ctx: &mut Ctx<'_>, args: &[&[u8]]) -> Frame {
+                              +      let key = args[1];
+                              +      Frame::simple(ctx.shard(key, |sh, now| sh.type_name(key, now)).unwrap_or("none"))
+                              +  }
+  step 3  src/command.rs      +  CommandSpec { name: "type", arity: 2, internal: false, handler: cmd_type },
+  step 4  tests/protocol_oracle.rs  +  c(&["TYPE"]), c(&["TYPE", "never"]), c(&["TYPE", "k"]),
+                                       c(&["HSET", "typed", "f", "v"]), c(&["TYPE", "typed"]),
+  step 5  SPEC.md / README.md  documentation only: NOT exercised mechanically (nothing in the build or
+                              the tests depends on it), so this experiment does not claim to verify it.
+
+Oracle run with TYPE added (cargo test --test protocol_oracle): test result: ok. 1 passed
+  100  PASS  TYPE                 | -ERR wrong number of arguments for 'type' command\r\n
+  101  PASS  TYPE never           | +none\r\n
+  102  PASS  TYPE k               | +string\r\n
+  104  PASS  TYPE typed           | +hash\r\n
+  SUMMARY: 204 rows (191 command rows + 13 wire rows): 204 PASS, 0 FAIL
+
+Reverted. sha256 identical (see above). Oracle re-run on the reverted tree:
+  SUMMARY: 199 rows (186 command rows + 13 wire rows): 199 PASS, 0 FAIL
+  (this is the committed results/oracle_report.txt)
+
+Result: steps 1-4 are sufficient and correct. The arity error ("wrong number of arguments for 'type'
+command") was produced by the table row alone, as the recipe says, and matched the real Redis.

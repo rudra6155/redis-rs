@@ -1,0 +1,49 @@
+Benchmark environment snapshot (what else was running on the Docker VM)
+sampled: 2026-10-29T16:43:35Z, a few minutes AFTER the benchmark run in hardware.json finished (16:16:25Z start, ~16:21Z end).
+'Up N hours' below shows the containers were already running for the whole benchmark. They are the machine owner's
+local Supabase and Lago stacks (not started by this project) and were deliberately left untouched.
+
+NAMES                                   IMAGE                                                   STATUS
+redis-rs-dev                            rust:1-bookworm                                         Up About an hour
+redis-oracle-dev                        redis:7                                                 Up About an hour
+supabase_db_geology.filtree.in          public.ecr.aws/supabase/postgres:17.6.1.159             Up 4 hours (healthy)
+supabase_studio_geology.filtree.in      public.ecr.aws/supabase/studio:2026.08.17-sha-0c1da8f   Up 4 hours (healthy)
+supabase_pg_meta_geology.filtree.in     public.ecr.aws/supabase/postgres-meta:v0.98.0           Up 4 hours (healthy)
+supabase_storage_geology.filtree.in     public.ecr.aws/supabase/storage-api:v1.69.11            Up 4 hours (healthy)
+supabase_rest_geology.filtree.in        public.ecr.aws/supabase/postgrest:v16.1                 Up 4 hours
+supabase_realtime_geology.filtree.in    public.ecr.aws/supabase/realtime:v2.129.0               Up 4 hours (healthy)
+supabase_inbucket_geology.filtree.in    public.ecr.aws/supabase/mailpit:v1.30.2                 Up 4 hours (healthy)
+supabase_auth_geology.filtree.in        public.ecr.aws/supabase/gotrue:v2.195.0                 Up 4 hours (healthy)
+supabase_kong_geology.filtree.in        public.ecr.aws/supabase/kong:2.8.1                      Up 4 hours (healthy)
+supabase_vector_geology.filtree.in      public.ecr.aws/supabase/vector:0.53.0-alpine            Restarting (0) 34 seconds ago
+supabase_analytics_geology.filtree.in   public.ecr.aws/supabase/logflare:1.50.2                 Up 4 hours (healthy)
+lago-front                              getlago/front:v1.51.0                                   Up 4 hours
+lago-worker                             getlago/api:v1.51.0                                     Up 4 hours (healthy)
+lago-clock                              getlago/api:v1.51.0                                     Up 4 hours
+lago-api                                getlago/api:v1.51.0                                     Up 4 hours (healthy)
+lago-redis                              redis:7-alpine                                          Up 4 hours (healthy)
+lago-db                                 getlago/postgres-partman:15.0-alpine                    Up 4 hours (healthy)
+
+CPU / memory sample (docker stats --no-stream):
+NAME                                    CPU %     MEM USAGE / LIMIT
+redis-rs-dev                            0.00%     1.046GiB / 11.53GiB
+redis-oracle-dev                        0.31%     4.215MiB / 11.53GiB
+supabase_db_geology.filtree.in          0.29%     155.1MiB / 11.53GiB
+supabase_studio_geology.filtree.in      0.02%     231.8MiB / 11.53GiB
+supabase_pg_meta_geology.filtree.in     0.53%     154.8MiB / 11.53GiB
+supabase_storage_geology.filtree.in     0.00%     176.7MiB / 11.53GiB
+supabase_rest_geology.filtree.in        0.11%     35.11MiB / 11.53GiB
+supabase_realtime_geology.filtree.in    0.15%     305.5MiB / 11.53GiB
+supabase_inbucket_geology.filtree.in    0.00%     26.12MiB / 11.53GiB
+supabase_auth_geology.filtree.in        0.00%     15.31MiB / 11.53GiB
+supabase_kong_geology.filtree.in        0.01%     110.4MiB / 11.53GiB
+supabase_vector_geology.filtree.in      0.00%     0B / 0B
+supabase_analytics_geology.filtree.in   2.42%     644.9MiB / 11.53GiB
+lago-front                              0.00%     17.76MiB / 11.53GiB
+lago-worker                             0.24%     316MiB / 11.53GiB
+lago-clock                              0.02%     309.6MiB / 11.53GiB
+lago-api                                0.02%     353.3MiB / 11.53GiB
+lago-redis                              0.48%     14.27MiB / 11.53GiB
+lago-db                                 0.00%     48.86MiB / 11.53GiB
+
+other containers: 17  (excluding this project's two dev containers)
