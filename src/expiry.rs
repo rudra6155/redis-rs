@@ -13,7 +13,7 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-/// Time between sweeper wake-ups (brief: 100 ms).
+/// Time between sweeper wake-ups (100 ms).
 pub const SWEEP_INTERVAL: Duration = Duration::from_millis(100);
 /// Keys sampled per shard per round while holding that shard's lock.
 pub const SAMPLES_PER_ROUND: usize = 20;

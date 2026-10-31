@@ -1,11 +1,12 @@
 # SPEC — redis-rs
 
-Written **before** the code. Every statement here is either enforced by a test
-(named in the right-hand column of the tables) or listed as a known divergence.
-Oracle = `redis:7` (Docker), measured version **7.4.12** (`INFO server` →
-`redis_version`; also recorded in `results/oracle_report.txt`). Statements about what Redis does
-*on the wire* are oracle-checked; remarks about Redis *internals* (its active-expire rule, behaviour while
-loading an AOF) are from memory of its source and unverified here.
+Every statement here is either enforced by a test (named in the right-hand column
+of the tables) or listed as a known divergence. Oracle = `redis:7` (Docker),
+measured version **7.4.12** (`INFO server` → `redis_version`; also recorded in
+`results/oracle_report.txt`). Statements about what Redis does *on the wire* are
+oracle-checked; remarks about Redis *internals* (its active-expire rule,
+behaviour while loading an AOF) are from memory of its source and not verified
+here.
 
 ## 1. Scope
 
@@ -88,15 +89,14 @@ is an error exactly like Redis (all in the oracle script).
 | `HGETALL k` | flat array `[f, v, f, v …]` in **insertion order**, empty array if missing | Redis only guarantees this order for small hashes (listpack encoding, ≤512 fields and ≤64-byte values); the oracle script stays inside that regime. |
 | any hash command on a string key (and `GET`/`INCR` on a hash) | `WRONGTYPE` | both directions tested |
 
-### 4.1 Deviation from the original brief: TTL rounding
+### 4.1 TTL rounding
 
-The brief says `TTL` is "truncated toward zero". The oracle says otherwise:
+An earlier draft specified `TTL` as "truncated toward zero". The oracle says otherwise:
 against `redis:7.4.12`, `SET k v EX 100` followed immediately by `TTL k` returns
 **100** (and `PTTL k` returned 99999), i.e. Redis computes
 `(remaining_ms + 500) / 1000`. A truncating implementation would answer 99 and
-visibly disagree with Redis in the first demo anyone runs. Because the brief's
-own rule is "verified against a real redis-server, not against your own
-assumptions", **we follow the oracle** (round to nearest). It is a one-line
+visibly disagree with Redis in the first demo anyone runs. Since the whole point
+is to match real Redis, **we follow the oracle** (round to nearest). It is a one-line
 change in `Shard::ttl` (`src/store.rs`) if truncation is wanted instead; the
 `expiry` tests assert the rounded semantics (`TTL` of a fresh `EX 100` key is
 exactly 100).
@@ -178,7 +178,7 @@ See `ARCHITECTURE.md` for the defence. Hard rules (enforced):
    synchronous function; (ii) command handlers are synchronous `fn`s;
    (iii) `clippy::await_holding_lock` is `deny` in `Cargo.toml` `[lints]`, in
    `lib.rs`, and CI runs `cargo clippy --all-targets -- -D warnings`. A
-   negative control (a deliberately bad file) is recorded in `CLAIMS.md`.
+   negative control (a deliberately bad file) is in `results/mutation_report.txt`.
 2. A command handler holds **at most one shard lock**, never two, because every
    command in scope touches exactly one key. The only lock ever taken *while*
    holding a shard lock is the AOF channel's internal queue lock (order
@@ -193,10 +193,10 @@ See `ARCHITECTURE.md` for the defence. Hard rules (enforced):
 | D2 | max 1 048 576 args per request | cheap DoS bound |
 | D3 | bulk payload must be followed by `\r\n` | detects desync |
 | D4 | `SET` options `NX XX GET KEEPTTL EXAT PXAT` unsupported (`syntax error`) | scope |
-| D5 | `DEL`/`EXISTS` single key only (arity error for 2+) | scope, per brief |
+| D5 | `DEL`/`EXISTS` single key only (arity error for 2+) | scope |
 | D6 | `EXPIRE` has no `NX/XX/GT/LT` | scope |
 | D7 | commands outside the list answer *unknown command* | scope |
-| D8 | `TTL` rounds like Redis, brief said truncate | see §4.1 (this is **not** a divergence from Redis, only from the brief) |
+| D8 | `TTL` rounds like Redis, initial spec said truncate | see §4.1 (this is **not** a divergence from Redis, only from the initial spec) |
 
 ## 9. Non-goals / honest limits
 

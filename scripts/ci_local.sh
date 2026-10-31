@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Run, locally and in order, exactly the commands in .github/workflows/ci.yml and record a transcript.
-# This is NOT a GitHub-hosted run (that stays PENDING in CLAIMS.md until the repo is pushed); it proves
-# the workflow's commands pass on a clean copy of the tree.
+# This is NOT a GitHub-hosted run; it proves the workflow's commands pass on a clean copy of the tree.
 #   needs: cargo (+clippy), and for the oracle job either Docker or ORACLE_ADDR=host:port
 #   usage: scripts/ci_local.sh        -> results/ci_local_run.txt
 set -uo pipefail

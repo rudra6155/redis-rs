@@ -6,7 +6,7 @@
 #  * both servers run in containers; each benchmark run is a throw-away container that joins the
 #    *network namespace of the server under test* (`--network container:NAME`), so both servers
 #    are hit over the same kind of loopback connection (127.0.0.1) on the same machine
-#  * config (per brief): -n 100000 -c 50 -t set,get -q, RUNS times; a second run per iteration
+#  * config: -n 100000 -c 50 -t set,get -q, RUNS times; a second run per iteration
 #    with --csv for p50/p99. NOTE: redis-benchmark has no `--latency` flag (that is redis-cli);
 #    --csv is its percentile output (p50/p95/p99 since Redis 7).
 #  * supplementary suites (same columns): `-r 100000` random keys, and `--threads 4` for the client

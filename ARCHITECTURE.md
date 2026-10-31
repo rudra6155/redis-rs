@@ -18,7 +18,7 @@ that has a test says which one; scope and exact semantics live in [SPEC.md](SPEC
  src/server.rs   accept loop, connection limit, graceful-shutdown order
  src/signal.rs   SIGINT/SIGTERM handlers (installed before "Ready"), StopSignal
  src/main.rs     flags, start-up order (replay BEFORE bind)
- src/lib.rs      (not in the brief's tree) lets tests/ and benches/ link the real code
+ src/lib.rs      (extra; not in the main tree) lets tests/ and benches/ link the real code
 ```
 
 ## 1. Connection lifecycle
@@ -252,5 +252,5 @@ Steps 1-4 took four edits and the oracle confirmed the reply byte for byte.
 | Reads that expire a key journal a `DEL` | replay = runtime (section 4) | no journal for lazy expiry: divergent replay |
 | Unbounded AOF queue | a shard lock is never held across disk I/O | bounded channel: backpressure but a lock held while waiting for the disk |
 | Inline commands rejected, connection closed | out of scope; cannot resynchronise after an inline line | best-effort inline support |
-| TTL rounds like Redis | the oracle says so (SPEC 4.1) | truncation (the brief's wording) |
+| TTL rounds like Redis | the oracle says so (SPEC 4.1) | truncation (the initial spec's wording) |
 | `process::exit(1)` on AOF write/fsync error | never acknowledge what is not durable | log and continue |

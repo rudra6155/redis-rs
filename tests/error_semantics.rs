@@ -155,7 +155,7 @@ fn oracle_error_strings_match_redis7() {
             case.cmd,
             oracle.version
         );
-        // exact prefix (the error type word) and message, as the brief asks
+        // exact prefix (the error type word) and message, matching Redis byte-for-byte
         assert!(m.starts_with(b"-"), "not an error reply: {:?}", escape(&m));
         let prefix = |r: &[u8]| String::from_utf8_lossy(&r[1..]).split(' ').next().unwrap().to_string();
         assert_eq!(prefix(&m), prefix(&t), "error prefix, case '{}'", case.name);
